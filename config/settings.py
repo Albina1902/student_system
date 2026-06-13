@@ -139,4 +139,5 @@ STATIC_URL = 'static/'
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
-ANTHROPIC_API_KEY = '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'
+import os
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY', '')
