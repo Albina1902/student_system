@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% block title %}{{ hw.title }} — AI-помощник{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ hw.title }}</h1>
+    <p class="page-subtitle">{{ hw.course.title }} · Группа {{ hw.group.name }} · До {{ hw.due_date }}</p>
+  </div>
+  <a href="{% url 'homework_list' %}" class="btn-outline">← Назад</a>
+</div>
+
+<div class="hw-detail-grid">
+  <!-- Описание задания -->
+  <div class="hw-description-card">
+    <h3 class="section-title">📋 Задание</h3>
+    <div class="hw-description-text">{{ hw.description|linebreaks }}</div>
+  </div>
+
+  <!-- AI-чат -->
+  <div class="ai-chat-card">
+    <div class="ai-chat-header">
+      <span class="ai-badge">🤖 AI-помощник</span>
+      <span class="ai-subtitle">Задайте вопрос по теме задания</span>
+    </div>
+
+    <!-- История чата -->
+    <div class="chat-history" id="chatHistory">
+      {% for exp in explanations %}
+      <div class="chat-message user-message">
+        <div class="msg-bubble">{{ exp.question }}</div>
+      </div>
+      <div class="chat-message ai-message">
+        <div class="msg-avatar">🤖</div>
+        <div class="msg-bubble">{{ exp.answer|linebreaks }}</div>
+      </div>
+      {% empty %}
+      <div class="chat-welcome">
+        <p>👋 Привет! Я AI-помощник по курсу <strong>{{ hw.course.title }}</strong>.</p>
+        <p>Задайте любой вопрос по теме задания, и я объясню.</p>
+        <div class="suggested-questions">
+          <p class="sq-label">Примеры вопросов:</p>
+          <button class="sq-btn" onclick="fillQuestion(this)">Объясни основную тему задания</button>
+          <button class="sq-btn" onclick="fillQuestion(this)">Приведи пример для этой задачи</button>
+          <button class="sq-btn" onclick="fillQuestion(this)">С чего начать выполнение?</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Поле ввода -->
+    <div class="chat-input-area">
+      <textarea
+        id="questionInput"
+        class="chat-textarea"
+        placeholder="Задайте вопрос по теме задания..."
+        rows="3"
+        onkeydown="handleKey(event)"
+      ></textarea>
+      <button class="btn-ai-send" id="sendBtn" onclick="askAI()">
+        <span id="sendText">Спросить</span>
+        <span id="sendLoader" style="display:none">⏳</span>
+      </button>
+    </div>
+    <p class="chat-hint">Enter — новая строка · Ctrl+Enter — отправить</p>
+  </div>
+</div>
+
+<style>
+.hw-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.hw-description-card, .ai-chat-card {
+  background: var(--card-bg, #1e2433);
+  border: 1px solid var(--border, #2d3548);
+  border-radius: 12px;
+  padding: 24px;
+}
+.section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; color: var(--text-primary, #e2e8f0); }
+.hw-description-text { color: var(--text-secondary, #94a3b8); line-height: 1.7; }
+.ai-chat-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.ai-badge { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+.ai-subtitle { color: var(--text-secondary, #94a3b8); font-size: 13px; }
+.chat-history {
+  min-height: 300px; max-height: 400px; overflow-y: auto;
+  background: var(--bg-darker, #141824);
+  border-radius: 8px; padding: 16px; margin-bottom: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.chat-welcome { color: var(--text-secondary, #94a3b8); line-height: 1.6; }
+.chat-welcome strong { color: var(--accent, #6366f1); }
+.suggested-questions { margin-top: 16px; }
+.sq-label { font-size: 12px; color: var(--text-muted, #64748b); margin-bottom: 8px; }
+.sq-btn {
+  display: block; width: 100%; text-align: left;
+  background: var(--card-bg, #1e2433); border: 1px solid var(--border, #2d3548);
+  color: var(--accent, #6366f1); padding: 8px 12px; border-radius: 6px;
+  font-size: 13px; cursor: pointer; margin-bottom: 6px; transition: background 0.2s;
+}
+.sq-btn:hover { background: var(--border, #2d3548); }
+.chat-message { display: flex; gap: 8px; align-items: flex-start; }
+.user-message { flex-direction: row-reverse; }
+.user-message .msg-bubble {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff; padding: 10px 14px; border-radius: 12px 12px 2px 12px;
+  max-width: 80%; font-size: 14px; line-height: 1.5;
+}
+.ai-message .msg-bubble {
+  background: var(--card-bg, #1e2433); border: 1px solid var(--border, #2d3548);
+  color: var(--text-primary, #e2e8f0); padding: 10px 14px;
+  border-radius: 12px 12px 12px 2px; max-width: 85%; font-size: 14px; line-height: 1.6;
+}
+.msg-avatar { font-size: 20px; flex-shrink: 0; margin-top: 4px; }
+.chat-input-area { display: flex; gap: 10px; }
+.chat-textarea {
+  flex: 1; background: var(--bg-darker, #141824); border: 1px solid var(--border, #2d3548);
+  border-radius: 8px; color: var(--text-primary, #e2e8f0); padding: 10px 14px;
+  font-size: 14px; resize: none; font-family: inherit;
+}
+.chat-textarea:focus { outline: none; border-color: #6366f1; }
+.btn-ai-send {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff;
+  border: none; border-radius: 8px; padding: 0 20px; font-size: 14px;
+  font-weight: 600; cursor: pointer; transition: opacity 0.2s; white-space: nowrap;
+}
+.btn-ai-send:hover { opacity: 0.9; }
+.btn-ai-send:disabled { opacity: 0.5; cursor: not-allowed; }
+.chat-hint { font-size: 11px; color: var(--text-muted, #64748b); margin-top: 8px; }
+@media (max-width: 900px) { .hw-detail-grid { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+const AJAX_URL = "{% url 'homework_ai_explain' hw.pk %}";
+const CSRF_TOKEN = "{{ csrf_token }}";
+
+function fillQuestion(btn) {
+  document.getElementById('questionInput').value = btn.textContent;
+  document.getElementById('questionInput').focus();
+}
+
+function handleKey(e) {
+  if (e.ctrlKey && e.key === 'Enter') askAI();
+}
+
+async function askAI() {
+  const input = document.getElementById('questionInput');
+  const question = input.value.trim();
+  if (!question) return;
+
+  const history = document.getElementById('chatHistory');
+  const sendBtn = document.getElementById('sendBtn');
+  const sendText = document.getElementById('sendText');
+  const sendLoader = document.getElementById('sendLoader');
+
+  // Убираем приветствие если есть
+  const welcome = history.querySelector('.chat-welcome');
+  if (welcome) welcome.remove();
+
+  // Добавляем сообщение пользователя
+  history.innerHTML += `
+    <div class="chat-message user-message">
+      <div class="msg-bubble">${escapeHtml(question)}</div>
+    </div>`;
+
+  // Показываем loader
+  history.innerHTML += `
+    <div class="chat-message ai-message" id="loadingMsg">
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-bubble" style="color:#64748b">Думаю... ⏳</div>
+    </div>`;
+  history.scrollTop = history.scrollHeight;
+
+  input.value = '';
+  sendBtn.disabled = true;
+  sendText.style.display = 'none';
+  sendLoader.style.display = 'inline';
+
+  try {
+    const resp = await fetch(AJAX_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': CSRF_TOKEN,
+      },
+      body: JSON.stringify({ question }),
+    });
+    const data = await resp.json();
+
+    document.getElementById('loadingMsg').remove();
+
+    if (data.error) {
+      history.innerHTML += `
+        <div class="chat-message ai-message">
+          <div class="msg-avatar">⚠️</div>
+          <div class="msg-bubble" style="color:#f87171">${escapeHtml(data.error)}</div>
+        </div>`;
+    } else {
+      history.innerHTML += `
+        <div class="chat-message ai-message">
+          <div class="msg-avatar">🤖</div>
+          <div class="msg-bubble">${formatAnswer(data.answer)}</div>
+        </div>`;
+    }
+  } catch (err) {
+    document.getElementById('loadingMsg').remove();
+    history.innerHTML += `
+      <div class="chat-message ai-message">
+        <div class="msg-avatar">⚠️</div>
+        <div class="msg-bubble" style="color:#f87171">Ошибка соединения: ${escapeHtml(err.message)}</div>
+      </div>`;
+  }
+
+  history.scrollTop = history.scrollHeight;
+  sendBtn.disabled = false;
+  sendText.style.display = 'inline';
+  sendLoader.style.display = 'none';
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatAnswer(text) {
+  // Базовое форматирование: переносы строк и жирный текст
+  return escapeHtml(text)
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code style="background:#0d1117;padding:2px 6px;border-radius:4px;font-size:12px">$1</code>');
+}
+</script>
+{% endblock %}

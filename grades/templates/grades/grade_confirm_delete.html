@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Удалить оценку{% endblock %}
+
+{% block content %}
+<div class="confirm-card">
+  <h2 class="confirm-title">Удалить оценку?</h2>
+  <p class="confirm-text">
+    {{ obj.student.last_name }} {{ obj.student.first_name }} — {{ obj.course.title }}: <strong>{{ obj.value }}</strong>
+  </p>
+  <form method="post" class="confirm-actions">
+    {% csrf_token %}
+    <button type="submit" class="btn-danger">Да, удалить</button>
+    <a href="{% url 'grade_list' %}" class="btn-outline">Отмена</a>
+  </form>
+</div>
+{% endblock %}

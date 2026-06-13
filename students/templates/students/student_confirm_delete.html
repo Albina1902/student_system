@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Header -->
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;animation:fadeUp 0.5s ease both;">
+    <div style="display:flex;align-items:center;gap:20px;">
+        <!-- Avatar -->
+        <div style="width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:22px;color:#080c14;flex-shrink:0;">
+            {{ student.first_name|first }}{{ student.last_name|first }}
+        </div>
+        <div>
+            <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.5px;line-height:1.1;">
+                {{ student.first_name }} {{ student.last_name }}
+            </h1>
+            <div style="color:var(--muted);font-size:14px;margin-top:4px;">{{ student.email }}</div>
+        </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+        <a href="{% url 'student_update' student.id %}" class="btn btn-ghost">✏️ Редактировать</a>
+        <a href="{% url 'student_list' %}" class="btn btn-ghost">← Назад</a>
+    </div>
+</div>
+
+<!-- Info + Stats row -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
+
+    <div class="card anim-1" style="padding:18px 20px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Группа</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;">{{ student.group.name }}</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:2px;">{{ student.group.faculty }}</div>
+    </div>
+
+    <div class="card anim-2" style="padding:18px 20px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Дата рождения</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;">{{ student.birth_date|date:"d.m.Y" }}</div>
+    </div>
+
+    <div class="card anim-3" style="padding:18px 20px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Курсов</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--accent);letter-spacing:-1px;">{{ grades|length }}</div>
+    </div>
+
+    <div class="card anim-4" style="padding:18px 20px;">
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Средний балл</div>
+        {% if average %}
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-1px;
+                {% if average >= 80 %}color:var(--accent3);
+                {% elif average >= 60 %}color:var(--accent4);
+                {% else %}color:#f87171;{% endif %}">
+                {{ average }}
+            </div>
+        {% else %}
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--muted);">—</div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Grades table -->
+<div class="card" style="padding:0;overflow:hidden;animation:fadeUp 0.5s ease 0.2s both;">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;">Оценки</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:2px;">История успеваемости</div>
+        </div>
+        <a href="{% url 'grade_create' %}" class="btn btn-primary" style="font-size:12px;padding:7px 14px;">+ Добавить оценку</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Курс</th>
+                <th>Оценка</th>
+                <th>Дата</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grade in grades %}
+            <tr>
+                <td style="font-weight:500;">{{ grade.course.title }}</td>
+                <td>
+                    <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:18px;
+                        {% if grade.value >= 80 %}color:var(--accent3);
+                        {% elif grade.value >= 60 %}color:var(--accent4);
+                        {% else %}color:#f87171;{% endif %}">
+                        {{ grade.value }}
+                    </span>
+                    <span style="color:var(--muted);font-size:12px;">/100</span>
+                </td>
+                <td style="color:var(--muted);font-size:13px;">{{ grade.date|date:"d.m.Y" }}</td>
+                <td>
+                    {% if grade.value >= 80 %}
+                        <span class="badge badge-green">Отлично</span>
+                    {% elif grade.value >= 60 %}
+                        <span class="badge" style="background:rgba(251,146,60,0.1);color:var(--accent4);">Хорошо</span>
+                    {% else %}
+                        <span class="badge" style="background:rgba(239,68,68,0.1);color:#f87171;">Слабо</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align:center;padding:40px;color:var(--muted);">
+                    Оценок пока нет
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

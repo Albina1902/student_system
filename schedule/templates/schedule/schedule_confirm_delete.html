@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Удалить занятие{% endblock %}
+
+{% block content %}
+<div class="confirm-card">
+  <h2 class="confirm-title">Удалить занятие?</h2>
+  <p class="confirm-text">{{ obj }}</p>
+  <form method="post" class="confirm-actions">
+    {% csrf_token %}
+    <button type="submit" class="btn-danger">Да, удалить</button>
+    <a href="{% url 'schedule_list' %}" class="btn-outline">Отмена</a>
+  </form>
+</div>
+{% endblock %}

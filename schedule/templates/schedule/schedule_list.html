@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Расписание{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Расписание</h1>
+    <p class="page-subtitle">Расписание занятий по группам</p>
+  </div>
+  <a href="{% url 'schedule_create' %}" class="btn-primary">+ Добавить занятие</a>
+</div>
+
+<!-- Фильтр по группе -->
+<form method="get" class="filter-bar">
+  <select name="group" class="edu-select" onchange="this.form.submit()">
+    <option value="">— Все группы —</option>
+    {% for g in groups %}
+      <option value="{{ g.pk }}" {% if selected_group == g.pk|stringformat:"s" %}selected{% endif %}>{{ g.name }}</option>
+    {% endfor %}
+  </select>
+  {% if selected_group %}
+    <a href="{% url 'schedule_list' %}" class="btn-outline">Сбросить</a>
+  {% endif %}
+</form>
+
+<!-- Расписание по дням -->
+{% if days_data %}
+  {% for day_name, lessons in days_data.items %}
+  <div class="day-block">
+    <h3 class="day-title">{{ day_name }}</h3>
+    <div class="schedule-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Время</th>
+            <th>Курс</th>
+            <th>Группа</th>
+            <th>Аудитория</th>
+            <th>Преподаватель</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lesson in lessons %}
+          <tr>
+            <td><span class="time-badge">{{ lesson.time_start|time:"H:i" }} – {{ lesson.time_end|time:"H:i" }}</span></td>
+            <td><strong>{{ lesson.course.title }}</strong></td>
+            <td><span class="group-badge">{{ lesson.group.name }}</span></td>
+            <td>{{ lesson.room }}</td>
+            <td>{{ lesson.course.teacher.get_full_name|default:lesson.course.teacher.username|default:"—" }}</td>
+            <td class="actions">
+              <a href="{% url 'schedule_edit' lesson.pk %}" class="btn-icon" title="Изменить">✏️</a>
+              <a href="{% url 'schedule_delete' lesson.pk %}" class="btn-icon btn-icon-danger" title="Удалить">🗑️</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <p>Расписание пустое. <a href="{% url 'schedule_create' %}">Добавьте первое занятие</a></p>
+  </div>
+{% endif %}
+{% endblock %}

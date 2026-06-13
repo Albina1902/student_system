@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start;">
+    <div>
+        <h1>Курсы</h1>
+        <p>Управление учебными курсами</p>
+    </div>
+    <a href="{% url 'course_create' %}" class="btn btn-primary">+ Добавить курс</a>
+</div>
+
+{% if courses %}
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;animation:fadeUp 0.5s ease 0.1s both;">
+    {% for course in courses %}
+    <div class="card" style="display:flex;flex-direction:column;gap:16px;">
+
+        <div>
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:17px;margin-bottom:6px;">{{ course.title }}</div>
+            {% if course.description %}
+            <div style="color:var(--muted);font-size:13px;line-height:1.5;">{{ course.description|truncatechars:80 }}</div>
+            {% endif %}
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--surface2);border-radius:10px;">
+            <span style="font-size:16px;">👨‍🏫</span>
+            <span style="font-size:13px;color:var(--muted);">
+                {% if course.teacher %}{{ course.teacher.get_full_name|default:course.teacher.username }}{% else %}Не назначен{% endif %}
+            </span>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:auto;padding-top:8px;border-top:1px solid var(--border);">
+            <a href="{% url 'course_update' course.id %}" class="btn btn-ghost" style="flex:1;justify-content:center;">✏️ Изменить</a>
+            <a href="{% url 'course_delete' course.id %}" class="btn btn-danger" style="padding:8px 14px;">🗑</a>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="card" style="text-align:center;padding:60px;animation:fadeUp 0.5s ease 0.1s both;">
+    <div style="font-size:40px;margin-bottom:12px;">📚</div>
+    <div style="color:var(--muted);font-size:15px;">Курсов пока нет</div>
+    <a href="{% url 'course_create' %}" class="btn btn-primary" style="margin-top:16px;display:inline-flex;">+ Создать первый курс</a>
+</div>
+{% endif %}
+
+{% endblock %}

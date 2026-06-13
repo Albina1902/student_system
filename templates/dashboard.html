@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Обзор системы управления студентами</p>
+</div>
+
+<!-- Stat Cards -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:36px;">
+    <div class="stat-card blue anim-1">
+        <div class="stat-label">Студентов</div>
+        <div class="stat-value blue">{{ total_students }}</div>
+    </div>
+    <div class="stat-card purple anim-2">
+        <div class="stat-label">Групп</div>
+        <div class="stat-value purple">{{ total_groups }}</div>
+    </div>
+    <div class="stat-card green anim-3">
+        <div class="stat-label">Курсов</div>
+        <div class="stat-value green">{{ total_courses }}</div>
+    </div>
+    <div class="stat-card orange anim-4">
+        <div class="stat-label">Средний балл</div>
+        <div class="stat-value orange">{{ average_grade }}</div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:36px;">
+    <div class="card anim-4" style="animation-delay:0.2s;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;">Студентов по группам</div>
+                <div style="color:var(--muted);font-size:12px;margin-top:2px;">Распределение</div>
+            </div>
+            <span class="badge badge-blue">Bar</span>
+        </div>
+        <canvas id="groupChart" height="200"></canvas>
+    </div>
+    <div class="card anim-5" style="animation-delay:0.25s;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <div>
+                <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;">Средний балл по курсам</div>
+                <div style="color:var(--muted);font-size:12px;margin-top:2px;">Успеваемость</div>
+            </div>
+            <span class="badge badge-purple">Line</span>
+        </div>
+        <canvas id="gradeChart" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Quick Links -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;animation:fadeUp 0.5s ease 0.3s both;">
+    <a href="/students/create/" class="card" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;">
+        <div style="width:40px;height:40px;background:rgba(56,189,248,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👤</div>
+        <div>
+            <div style="font-weight:600;font-size:14px;">Добавить студента</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:2px;">Новая запись</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);">→</span>
+    </a>
+    <a href="/groups/" class="card" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;">
+        <div style="width:40px;height:40px;background:rgba(129,140,248,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👥</div>
+        <div>
+            <div style="font-weight:600;font-size:14px;">Управление группами</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:2px;">{{ total_groups }} групп</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);">→</span>
+    </a>
+    <a href="/courses/" class="card" style="text-decoration:none;display:flex;align-items:center;gap:14px;padding:18px 20px;">
+        <div style="width:40px;height:40px;background:rgba(52,211,153,0.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">📚</div>
+        <div>
+            <div style="font-weight:600;font-size:14px;">Курсы</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:2px;">{{ total_courses }} активных</div>
+        </div>
+        <span style="margin-left:auto;color:var(--muted);">→</span>
+    </a>
+</div>
+
+<script>
+    const chartDefaults = {
+        color: '#64748b',
+        font: { family: 'DM Sans', size: 12 }
+    };
+    Chart.defaults.color = chartDefaults.color;
+    Chart.defaults.font = chartDefaults.font;
+
+    const gridColor = 'rgba(99,179,237,0.06)';
+    const tickColor = '#475569';
+
+    new Chart(document.getElementById("groupChart"), {
+        type: "bar",
+        data: {
+            labels: {{ group_labels|safe }},
+            datasets: [{
+                label: "Студентов",
+                data: {{ group_counts|safe }},
+                backgroundColor: 'rgba(56,189,248,0.15)',
+                borderColor: 'rgba(56,189,248,0.6)',
+                borderWidth: 1.5,
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+                y: { grid: { color: gridColor }, ticks: { color: tickColor }, beginAtZero: true }
+            }
+        }
+    });
+
+    new Chart(document.getElementById("gradeChart"), {
+        type: "line",
+        data: {
+            labels: {{ course_labels|safe }},
+            datasets: [{
+                label: "Средний балл",
+                data: {{ course_averages|safe }},
+                borderColor: 'rgba(129,140,248,0.8)',
+                backgroundColor: 'rgba(129,140,248,0.06)',
+                borderWidth: 2,
+                pointBackgroundColor: '#818cf8',
+                pointRadius: 5,
+                tension: 0.4,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+                y: { grid: { color: gridColor }, ticks: { color: tickColor }, beginAtZero: true }
+            }
+        }
+    });
+</script>
+{% endblock %}

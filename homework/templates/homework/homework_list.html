@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Домашние задания{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Домашние задания</h1>
+    <p class="page-subtitle">Задания с AI-помощником по темам</p>
+  </div>
+  <a href="{% url 'homework_create' %}" class="btn-primary">+ Создать задание</a>
+</div>
+
+<form method="get" class="filter-bar">
+  <select name="course" class="edu-select" onchange="this.form.submit()">
+    <option value="">— Все курсы —</option>
+    {% for c in courses %}
+      <option value="{{ c.pk }}" {% if selected_course == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.title }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<div class="cards-grid">
+  {% for hw in homeworks %}
+  <div class="hw-card">
+    <div class="hw-card-header">
+      <span class="hw-course-badge">{{ hw.course.title }}</span>
+      <span class="hw-group-badge">{{ hw.group.name }}</span>
+    </div>
+    <h3 class="hw-title">{{ hw.title }}</h3>
+    <p class="hw-desc">{{ hw.description|truncatechars:120 }}</p>
+    <div class="hw-footer">
+      <span class="hw-due {% if hw.due_date < today %}hw-overdue{% endif %}">
+        📅 До {{ hw.due_date }}
+      </span>
+      <div class="hw-actions">
+        <a href="{% url 'homework_detail' hw.pk %}" class="btn-primary btn-sm">🤖 AI-помощник</a>
+        <a href="{% url 'homework_edit' hw.pk %}" class="btn-icon">✏️</a>
+        <a href="{% url 'homework_delete' hw.pk %}" class="btn-icon btn-icon-danger">🗑️</a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="empty-state">
+    <p>Заданий нет. <a href="{% url 'homework_create' %}">Создайте первое</a></p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
