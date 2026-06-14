@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1>👤 Личный кабинет</h1>
+    <p>{{ student.full_name }} · {{ student.group }}</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+    <div class="stat-card blue anim-1">
+        <div class="stat-label">Средний балл</div>
+        <div class="stat-value blue">{{ student.average_grade|default:"—" }}</div>
+    </div>
+    <div class="stat-card purple anim-2">
+        <div class="stat-label">Группа</div>
+        <div class="stat-value purple" style="font-size:24px;">{{ student.group }}</div>
+    </div>
+</div>
+
+<div class="card anim-3" style="margin-bottom:24px;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:18px;margin-bottom:16px;">⭐ Мои оценки</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Курс</th>
+                <th>Оценка</th>
+                <th>Дата</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grade in grades %}
+            <tr>
+                <td>{{ grade.course }}</td>
+                <td><span class="badge badge-blue">{{ grade.value }}</span></td>
+                <td>{{ grade.date }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="color:var(--muted)">Оценок пока нет</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card anim-4" style="margin-bottom:24px;">
+    <h2 style="font-family:'Syne',sans-serif;font-size:18px;margin-bottom:16px;">📝 Домашние задания</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Задание</th>
+                <th>Курс</th>
+                <th>Срок</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hw in homeworks %}
+            <tr>
+                <td><a href="/homework/{{ hw.pk }}/" style="color:var(--accent)">{{ hw.title }}</a></td>
+                <td>{{ hw.course }}</td>
+                <td>{{ hw.due_date }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" style="color:var(--muted)">Заданий пока нет</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card anim-5">
+    <h2 style="font-family:'Syne',sans-serif;font-size:18px;margin-bottom:16px;">📅 Расписание</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>День</th>
+                <th>Время</th>
+                <th>Курс</th>
+                <th>Аудитория</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in schedule %}
+            <tr>
+                <td>{{ s.get_day_of_week_display }}</td>
+                <td>{{ s.time_start }} — {{ s.time_end }}</td>
+                <td>{{ s.course }}</td>
+                <td>{{ s.room }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="color:var(--muted)">Расписания пока нет</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -388,12 +388,16 @@
             <a href="/students/" class="{% if '/students/' in request.path %}active{% endif %}">
                 <span class="nav-icon">👤</span> Students
             </a>
+            {% if request.user.is_staff %}
             <a href="/groups/" class="{% if '/groups/' in request.path %}active{% endif %}">
                 <span class="nav-icon">👥</span> Groups
             </a>
+            {% endif %}
+            {% if request.user.is_staff %}
             <a href="/courses/" class="{% if '/courses/' in request.path %}active{% endif %}">
-    <span class="nav-icon">📚</span> Courses
-</a>
+                <span class="nav-icon">📚</span> Courses
+            </a>
+            {% endif %}
 <a href="/grades/" class="{% if '/grades/' in request.path %}active{% endif %}">
                 <span class="nav-icon">⭐</span> Grades
             </a>
@@ -406,10 +410,25 @@
             </a>
         </nav>
         <div class="sidebar-footer">
-            <a href="/api/" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:13px;transition:all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">
-                <span>⚡</span> API Explorer
-            </a>
-        </div>
+    {% if user.is_authenticated %}
+    <a href="/accounts/cabinet/" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:13px;transition:all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">
+        <span>👤</span> {{ user.username }}
+    </a>
+    <form method="post" action="/accounts/logout/" style="margin:0">
+    {% csrf_token %}
+    <button type="submit" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted);background:none;border:none;cursor:pointer;font-size:13px;width:100%;transition:all 0.2s;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='var(--muted)'">
+        <span>🚪</span> Выйти
+    </button>
+</form>
+    {% else %}
+    <a href="/accounts/login/" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--accent);text-decoration:none;font-size:13px;transition:all 0.2s;">
+        <span>🔑</span> Войти
+    </a>
+    {% endif %}
+    <a href="/api/" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-size:13px;transition:all 0.2s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">
+        <span>⚡</span> API Explorer
+    </a>
+</div>
     </aside>
 
     <main>

@@ -14,7 +14,9 @@
         </div>
     </div>
     <div style="display:flex;gap:8px;">
+        {% if request.user.is_staff %}
         <a href="{% url 'student_update' student.id %}" class="btn btn-ghost">✏️ Редактировать</a>
+        {% endif %}
         <a href="{% url 'student_list' %}" class="btn btn-ghost">← Назад</a>
     </div>
 </div>
@@ -49,7 +51,9 @@
             <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;">Оценки</div>
             <div style="color:var(--muted);font-size:12px;margin-top:2px;">История успеваемости</div>
         </div>
+        {% if request.user.is_staff %}
         <a href="{% url 'grade_create' %}" class="btn btn-primary" style="font-size:12px;padding:7px 14px;">+ Добавить оценку</a>
+        {% endif %}
     </div>
     <table>
         <thead>

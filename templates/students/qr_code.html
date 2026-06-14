@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}QR-код регистрации — EduSystem{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+
+      <div class="card shadow">
+        <div class="card-header bg-success text-white py-3">
+          <h4 class="mb-0">📲 QR-код для регистрации студентов</h4>
+        </div>
+
+        <div class="card-body p-4">
+          <p class="text-muted mb-4">
+            Покажите или распечатайте этот QR-код.<br>
+            Студент сканирует его и самостоятельно регистрируется в системе.
+          </p>
+
+          <div class="border rounded p-3 d-inline-block mb-4 bg-white" id="qr-block">
+            <img
+              src="data:image/png;base64,{{ qr_image }}"
+              alt="QR-код регистрации"
+              style="width: 250px; height: 250px;"
+              class="d-block mx-auto"
+            />
+            <p class="mt-2 mb-0 text-muted small">EduSystem — регистрация студента</p>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label text-muted small fw-semibold">Прямая ссылка:</label>
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control form-control-sm"
+                value="{{ register_url }}"
+                id="reg-link"
+                readonly
+              />
+              <button
+                class="btn btn-outline-secondary btn-sm"
+                onclick="copyLink()"
+                title="Скопировать"
+              >
+                📋
+              </button>
+            </div>
+            <small id="copy-msg" class="text-success" style="display:none;">Скопировано!</small>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button class="btn btn-primary" onclick="printQR()">
+              🖨️ Распечатать QR-код
+            </button>
+            <a href="{% url 'student_register' %}" class="btn btn-outline-secondary" target="_blank">
+              🔗 Открыть страницу регистрации
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  @media print {
+    body * { visibility: hidden; }
+    #print-area, #print-area * { visibility: visible; }
+    #print-area { position: fixed; top: 0; left: 0; width: 100%; }
+  }
+</style>
+
+<div id="print-area" style="display:none;">
+  <div style="text-align:center; font-family:sans-serif; padding:40px;">
+    <h2 style="margin-bottom:8px;">🎓 EduSystem</h2>
+    <p style="color:#666; margin-bottom:24px;">Отсканируйте QR-код для регистрации</p>
+    <img
+      src="data:image/png;base64,{{ qr_image }}"
+      style="width:280px; height:280px;"
+    />
+    <p style="margin-top:16px; font-size:13px; color:#888; word-break:break-all;">
+      {{ register_url }}
+    </p>
+  </div>
+</div>
+
+<script>
+  function copyLink() {
+    const input = document.getElementById('reg-link');
+    navigator.clipboard.writeText(input.value).then(() => {
+      document.getElementById('copy-msg').style.display = 'inline';
+      setTimeout(() => { document.getElementById('copy-msg').style.display = 'none'; }, 2000);
+    });
+  }
+
+  function printQR() {
+    document.getElementById('print-area').style.display = 'block';
+    window.print();
+    document.getElementById('print-area').style.display = 'none';
+  }
+</script>
+{% endblock %}

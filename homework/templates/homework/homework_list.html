@@ -7,7 +7,9 @@
     <h1 class="page-title">Домашние задания</h1>
     <p class="page-subtitle">Задания с AI-помощником по темам</p>
   </div>
+  {% if request.user.is_staff %}
   <a href="{% url 'homework_create' %}" class="btn-primary">+ Создать задание</a>
+  {% endif %}
 </div>
 
 <form method="get" class="filter-bar">
@@ -34,14 +36,23 @@
       </span>
       <div class="hw-actions">
         <a href="{% url 'homework_detail' hw.pk %}" class="btn-primary btn-sm">🤖 AI-помощник</a>
-        <a href="{% url 'homework_edit' hw.pk %}" class="btn-icon">✏️</a>
-        <a href="{% url 'homework_delete' hw.pk %}" class="btn-icon btn-icon-danger">🗑️</a>
+{% if not request.user.is_staff %}
+<a href="{% url 'homework_submit' hw.pk %}" class="btn-primary btn-sm">📤 Сдать ДЗ</a>
+{% else %}
+<a href="{% url 'homework_submissions' hw.pk %}" class="btn-outline btn-sm">👁 Ответы</a>
+<a href="{% url 'homework_edit' hw.pk %}" class="btn-icon">✏️</a>
+<a href="{% url 'homework_delete' hw.pk %}" class="btn-icon btn-icon-danger">🗑️</a>
+{% endif %}
       </div>
     </div>
   </div>
   {% empty %}
   <div class="empty-state">
+    {% if request.user.is_staff %}
     <p>Заданий нет. <a href="{% url 'homework_create' %}">Создайте первое</a></p>
+    {% else %}
+    <p>Заданий пока нет.</p>
+    {% endif %}
   </div>
   {% endfor %}
 </div>

@@ -8,4 +8,6 @@ urlpatterns = [
     path('<int:pk>/edit/', views.homework_edit, name='homework_edit'),
     path('<int:pk>/delete/', views.homework_delete, name='homework_delete'),
     path('<int:pk>/ai/', views.ai_explain, name='homework_ai_explain'),
+    path('<int:pk>/submit/', views.homework_submit, name='homework_submit'),
+    path('<int:pk>/submissions/', views.homework_submissions, name='homework_submissions'),
 ]

@@ -43,3 +43,37 @@ class AIExplanation(models.Model):
         verbose_name = 'Объяснение AI'
         verbose_name_plural = 'Объяснения AI'
         ordering = ['-created_at']
+class HomeworkSubmission(models.Model):
+    STATUS_CHOICES = [
+        ('submitted', 'Сдано'),
+        ('checked', 'Проверено'),
+        ('revision', 'На доработку'),
+    ]
+
+    homework = models.ForeignKey(
+        Homework, on_delete=models.CASCADE,
+        related_name='submissions', verbose_name='Задание'
+    )
+    student = models.ForeignKey(
+        'students.Student', on_delete=models.CASCADE,
+        related_name='submissions', verbose_name='Студент'
+    )
+    answer = models.TextField(verbose_name='Ответ студента')
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES,
+        default='submitted', verbose_name='Статус'
+    )
+    teacher_comment = models.TextField(
+        blank=True, verbose_name='Комментарий преподавателя'
+    )
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    checked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Ответ на задание'
+        verbose_name_plural = 'Ответы на задания'
+        ordering = ['-submitted_at']
+        unique_together = ('homework', 'student')
+
+    def __str__(self):
+        return f'{self.student} → {self.homework.title}'

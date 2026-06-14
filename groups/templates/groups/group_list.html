@@ -6,7 +6,9 @@
         <h1>Группы</h1>
         <p>Управление учебными группами</p>
     </div>
+    {% if request.user.is_staff %}
     <a href="{% url 'group_create' %}" class="btn btn-primary">+ Добавить группу</a>
+    {% endif %}
 </div>
 
 <div class="card" style="padding:0;overflow:hidden;animation:fadeUp 0.5s ease 0.1s both;">
@@ -16,7 +18,9 @@
                 <th>Название</th>
                 <th>Факультет</th>
                 <th>Студентов</th>
+                {% if request.user.is_staff %}
                 <th style="text-align:right;padding-right:24px;">Действия</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -27,12 +31,14 @@
                 </td>
                 <td><span class="badge badge-purple">{{ group.faculty }}</span></td>
                 <td style="color:var(--muted);">{{ group.students.count }} чел.</td>
+                {% if request.user.is_staff %}
                 <td style="text-align:right;">
                     <div style="display:flex;gap:8px;justify-content:flex-end;">
                         <a href="{% url 'group_update' group.id %}" class="btn btn-ghost" style="padding:6px 12px;font-size:12px;">✏️ Изменить</a>
                         <a href="{% url 'group_delete' group.id %}" class="btn btn-danger" style="padding:6px 12px;font-size:12px;">🗑</a>
                     </div>
                 </td>
+                {% endif %}
             </tr>
             {% empty %}
             <tr>

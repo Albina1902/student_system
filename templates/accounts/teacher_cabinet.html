@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1>👨‍🏫 Кабинет преподавателя</h1>
+    <p>Управление студентами и оценками</p>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-bottom:32px;">
+    <div class="stat-card blue anim-1">
+        <div class="stat-label">Студентов</div>
+        <div class="stat-value blue">{{ students.count }}</div>
+    </div>
+    <div class="stat-card purple anim-2">
+        <div class="stat-label">Групп</div>
+        <div class="stat-value purple">{{ groups.count }}</div>
+    </div>
+    <div class="stat-card green anim-3">
+        <div class="stat-label">Курсов</div>
+        <div class="stat-value green">{{ courses.count }}</div>
+    </div>
+</div>
+
+<div class="card anim-4" style="margin-bottom:24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-family:'Syne',sans-serif;font-size:18px;">👥 Студенты</h2>
+        <a href="/students/add/" class="btn btn-primary">+ Добавить</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Студент</th>
+                <th>Группа</th>
+                <th>Средний балл</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.full_name }}</td>
+                <td>{{ student.group }}</td>
+                <td><span class="badge badge-blue">{{ student.average_grade|default:"—" }}</span></td>
+                <td>
+                    <a href="/grades/add/?student={{ student.pk }}" class="btn btn-ghost" style="font-size:12px;padding:4px 10px;">+ Оценка</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="color:var(--muted)">Студентов пока нет</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card anim-5">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-family:'Syne',sans-serif;font-size:18px;">⭐ Последние оценки</h2>
+        <a href="/grades/add/" class="btn btn-primary">+ Добавить оценку</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Студент</th>
+                <th>Курс</th>
+                <th>Оценка</th>
+                <th>Дата</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for grade in grades|slice:":10" %}
+            <tr>
+                <td>{{ grade.student }}</td>
+                <td>{{ grade.course }}</td>
+                <td><span class="badge badge-blue">{{ grade.value }}</span></td>
+                <td>{{ grade.date }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="color:var(--muted)">Оценок пока нет</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

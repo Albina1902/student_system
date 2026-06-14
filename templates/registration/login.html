@@ -1,15 +1,104 @@
-{% extends 'base.html' %}
-{% block content %}
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-4">
-      <h2 class="mb-4">Вход</h2>
-      <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary w-100">Войти</button>
-      </form>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduSystem — Вход</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #080c14;
+            color: #e2e8f0;
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            background: #0e1520;
+            border: 1px solid rgba(99,179,237,0.08);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+        }
+        .logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #38bdf8; margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #38bdf8, #818cf8); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        h2 { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 8px; }
+        p { color: #64748b; margin-bottom: 28px; font-size: 14px; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+        input {
+            width: 100%;
+            background: #131c2e;
+            border: 1px solid rgba(99,179,237,0.08);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #e2e8f0;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 20px;
+        }
+        input:focus { border-color: #38bdf8; }
+        .role-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+        .btn-student {
+            background: #131c2e;
+            color: #e2e8f0;
+            border: 1px solid rgba(99,179,237,0.08);
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-student:hover { border-color: #38bdf8; color: #38bdf8; }
+        .btn-teacher {
+            background: #38bdf8;
+            color: #080c14;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-teacher:hover { background: #7dd3fc; }
+        .error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #f87171; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <div class="logo-icon">🎓</div>
+            EduSystem
+        </div>
+        <h2>Вход в систему</h2>
+        <p>Введите данные и выберите тип аккаунта</p>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="error">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post" action="/accounts/login/">
+            {% csrf_token %}
+            <label>Логин</label>
+            <input type="text" name="username" placeholder="Введите логин" required autofocus>
+            <label>Пароль</label>
+            <input type="password" name="password" placeholder="Введите пароль" required>
+            <div class="role-buttons">
+                <button type="submit" name="role" value="student" class="btn-student">
+                    👤 Я студент
+                </button>
+                <button type="submit" name="role" value="teacher" class="btn-teacher">
+                    👨‍🏫 Я преподаватель
+                </button>
+            </div>
+        </form>
     </div>
-  </div>
-</div>
-{% endblock %}
+</body>
+</html>

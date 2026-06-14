@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Сдать задание{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ hw.title }}</h1>
+    <p class="page-subtitle">{{ hw.course.title }} — {{ hw.group.name }}</p>
+  </div>
+  <a href="{% url 'homework_list' %}" class="btn-outline">← Назад</a>
+</div>
+
+<div class="card" style="margin-bottom:24px;padding:24px;">
+  <h3 style="margin-bottom:12px;">📋 Задание</h3>
+  <p style="color:var(--muted);line-height:1.6;">{{ hw.description }}</p>
+  <p style="margin-top:12px;color:var(--muted);font-size:13px;">📅 Срок сдачи: {{ hw.due_date }}</p>
+</div>
+
+{% if existing %}
+<div class="card" style="margin-bottom:24px;padding:24px;border:1px solid 
+  {% if existing.status == 'checked' %}var(--accent3)
+  {% elif existing.status == 'revision' %}#f87171
+  {% else %}var(--accent){% endif %};">
+  <h3 style="margin-bottom:8px;">
+    {% if existing.status == 'submitted' %}⏳ Ожидает проверки
+    {% elif existing.status == 'checked' %}✅ Проверено
+    {% elif existing.status == 'revision' %}🔄 На доработку
+    {% endif %}
+  </h3>
+  {% if existing.teacher_comment %}
+  <p style="color:var(--muted);margin-top:8px;"><strong>Комментарий преподавателя:</strong> {{ existing.teacher_comment }}</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="card" style="padding:24px;">
+  <h3 style="margin-bottom:16px;">✍️ {% if existing %}Обновить ответ{% else %}Мой ответ{% endif %}</h3>
+  <form method="post">
+    {% csrf_token %}
+    <textarea name="answer" rows="8" style="width:100%;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;resize:vertical;" placeholder="Напишите ваш ответ здесь...">{% if existing %}{{ existing.answer }}{% endif %}</textarea>
+    <button type="submit" class="btn-primary" style="margin-top:16px;">
+      {% if existing %}Обновить ответ{% else %}Сдать задание{% endif %}
+    </button>
+  </form>
+</div>
+{% endblock %}

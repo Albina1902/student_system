@@ -7,10 +7,11 @@
     <h1 class="page-title">Расписание</h1>
     <p class="page-subtitle">Расписание занятий по группам</p>
   </div>
+  {% if request.user.is_staff %}
   <a href="{% url 'schedule_create' %}" class="btn-primary">+ Добавить занятие</a>
+  {% endif %}
 </div>
 
-<!-- Фильтр по группе -->
 <form method="get" class="filter-bar">
   <select name="group" class="edu-select" onchange="this.form.submit()">
     <option value="">— Все группы —</option>
@@ -23,7 +24,6 @@
   {% endif %}
 </form>
 
-<!-- Расписание по дням -->
 {% if days_data %}
   {% for day_name, lessons in days_data.items %}
   <div class="day-block">
@@ -37,7 +37,9 @@
             <th>Группа</th>
             <th>Аудитория</th>
             <th>Преподаватель</th>
+            {% if request.user.is_staff %}
             <th>Действия</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
@@ -48,10 +50,12 @@
             <td><span class="group-badge">{{ lesson.group.name }}</span></td>
             <td>{{ lesson.room }}</td>
             <td>{{ lesson.course.teacher.get_full_name|default:lesson.course.teacher.username|default:"—" }}</td>
+            {% if request.user.is_staff %}
             <td class="actions">
               <a href="{% url 'schedule_edit' lesson.pk %}" class="btn-icon" title="Изменить">✏️</a>
               <a href="{% url 'schedule_delete' lesson.pk %}" class="btn-icon btn-icon-danger" title="Удалить">🗑️</a>
             </td>
+            {% endif %}
           </tr>
           {% endfor %}
         </tbody>
@@ -61,7 +65,11 @@
   {% endfor %}
 {% else %}
   <div class="empty-state">
+    {% if request.user.is_staff %}
     <p>Расписание пустое. <a href="{% url 'schedule_create' %}">Добавьте первое занятие</a></p>
+    {% else %}
+    <p>Расписание пустое.</p>
+    {% endif %}
   </div>
 {% endif %}
 {% endblock %}

@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
-
+from dotenv import load_dotenv
+import os
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,7 +27,7 @@ SECRET_KEY = 'django-insecure-d5s@(pqe!6s2k4dmj0v^%0!verjpw5&jqt!xxo*=^43q3mja6*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', 'https://studentsystem-production-b4ee.up.railway.app']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.1.101']
 
 
 # Application definition
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     'schedule',
     'grades',
     'homework',
+    'accounts',
 ]
 
 

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Ответы студентов{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ hw.title }}</h1>
+    <p class="page-subtitle">Ответы студентов — {{ submissions|length }} сдано</p>
+  </div>
+  <a href="{% url 'homework_list' %}" class="btn-outline">← Назад</a>
+</div>
+
+{% if submissions %}
+{% for sub in submissions %}
+<div class="card" style="margin-bottom:16px;padding:24px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div>
+      <strong style="font-size:16px;">{{ sub.student.first_name }} {{ sub.student.last_name }}</strong>
+      <span style="color:var(--muted);font-size:13px;margin-left:12px;">{{ sub.submitted_at|date:"d.m.Y H:i" }}</span>
+    </div>
+    <span class="badge {% if sub.status == 'checked' %}badge-green{% elif sub.status == 'revision' %}badge-red{% else %}badge-blue{% endif %}">
+      {% if sub.status == 'submitted' %}Сдано
+      {% elif sub.status == 'checked' %}Проверено
+      {% elif sub.status == 'revision' %}На доработку{% endif %}
+    </span>
+  </div>
+
+  <div style="background:var(--surface2);padding:16px;border-radius:10px;margin-bottom:16px;line-height:1.6;">
+    {{ sub.answer }}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="submission_id" value="{{ sub.pk }}">
+    <div style="display:flex;gap:12px;align-items:flex-start;">
+      <textarea name="comment" rows="2" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;" placeholder="Комментарий преподавателя...">{{ sub.teacher_comment }}</textarea>
+      <select name="status" style="padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);">
+        <option value="checked" {% if sub.status == 'checked' %}selected{% endif %}>✅ Проверено</option>
+        <option value="revision" {% if sub.status == 'revision' %}selected{% endif %}>🔄 На доработку</option>
+        <option value="submitted" {% if sub.status == 'submitted' %}selected{% endif %}>⏳ Ожидает</option>
+      </select>
+      <button type="submit" class="btn-primary" style="padding:10px 20px;">Сохранить</button>
+    </div>
+  </form>
+</div>
+{% endfor %}
+{% else %}
+<div class="empty-state">
+  <p>Никто ещё не сдал это задание.</p>
+</div>
+{% endif %}
+{% endblock %}
